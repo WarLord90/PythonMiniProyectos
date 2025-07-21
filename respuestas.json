@@ -1,7 +1,16 @@
 {
-    "hola": "¡Hola! ¿Cómo estás?",
+    "hola": [
+        "¡Hola! ¿Cómo estás?",
+        "hola mundo",
+        "hola papu",
+        "hola bai"
+    ],
     "como estas": "Estoy bien, gracias por preguntar.",
     "tu nombre": "Me llamo MiniBot.",
     "adios": "Adiós, vuelve pronto.",
-    "buenos dias": "buenos días, espero que descanses bien."
+    "buenos dias": "buenos días, espero que descanses bien.",
+    "papu": "que paso papu",
+    "hi": [
+        "hoal mundo"
+    ]
 }

@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 ARCHIVO_RESPUESTAS = "respuestas.json"
 
@@ -8,17 +9,23 @@ def cargar_respuestas():
         with open(ARCHIVO_RESPUESTAS, "r", encoding="utf-8") as f:
             return json.load(f)
     else:
-        # Respuestas base
+        # Respuestas base (ya con listas para que pueda aleatorizar)
         return {
-            "hola": "¡Hola! ¿Cómo estás?",
-            "como estas": "Estoy bien, gracias por preguntar.",
-            "tu nombre": "Me llamo MiniBot.",
-            "adios": "Adiós, vuelve pronto."
+            "hola": ["¡Hola! ¿Cómo estás?", "¡Hey! Qué gusto verte.", "Hola, ¿todo bien?"],
+            "como estas": ["Estoy bien, gracias por preguntar.", "Todo tranquilo, ¿y tú?", "Mejorando cada día 😄"],
+            "tu nombre": ["Me llamo MiniBot.", "Puedes llamarme MiniBot.", "Soy MiniBot, tu asistente personal."],
+            "adios": ["Adiós, vuelve pronto.", "¡Cuídate mucho!", "Nos vemos pronto 👋"]
         }
 
 def guardar_respuestas(respuestas):
     with open(ARCHIVO_RESPUESTAS, "w", encoding="utf-8") as f:
         json.dump(respuestas, f, ensure_ascii=False, indent=4)
+
+def obtener_respuesta(respuesta):
+    """Devuelve una respuesta, aleatoria si es lista."""
+    if isinstance(respuesta, list):
+        return random.choice(respuesta)
+    return respuesta  # Si es texto simple, lo devuelve tal cual
 
 def mini_chatbot():
     print("🤖 Hola, soy MiniBot con MEMORIA. Escribe 'salir' para terminar.")
@@ -43,18 +50,37 @@ def mini_chatbot():
                 clave, respuesta = resto.split("->")
                 clave = clave.strip()
                 respuesta = respuesta.strip()
-                respuestas[clave] = respuesta
+
+                # Si ya existe y es lista, agregar una nueva opción
+                if clave in respuestas:
+                    if isinstance(respuestas[clave], list):
+                        respuestas[clave].append(respuesta)
+                    else:
+                        respuestas[clave] = [respuestas[clave], respuesta]
+                else:
+                    # Crear nueva clave como lista
+                    respuestas[clave] = [respuesta]
+
                 guardar_respuestas(respuestas)  # guardar en archivo
-                print(f"🤖 He aprendido que '{clave}' significa: '{respuesta}' (Guardado en memoria)")
+                print(f"🤖 He aprendido que '{clave}' también puede significar: '{respuesta}' (Guardado en memoria)")
             except:
                 print("⚠️ Formato inválido. Usa: aprende palabra -> respuesta")
             continue
 
-        # Buscar respuesta aprendida
+        # Buscar respuesta exacta
         if mensaje in respuestas:
-            print("🤖", respuestas[mensaje])
+            print("🤖", obtener_respuesta(respuestas[mensaje]))
         else:
-            print("🤖 No entiendo, pero puedes enseñarme usando: aprende [palabra] -> [respuesta]")
+            # Buscar coincidencia parcial
+            encontrado = False
+            for clave, respuesta in respuestas.items():
+                if clave in mensaje:  # si la clave está dentro del mensaje
+                    print("🤖", obtener_respuesta(respuesta))
+                    encontrado = True
+                    break
+
+            if not encontrado:
+                print("🤖 No estoy seguro de eso, pero puedes enseñarme usando: aprende [palabra] -> [respuesta]")
 
 if __name__ == "__main__":
     mini_chatbot()
